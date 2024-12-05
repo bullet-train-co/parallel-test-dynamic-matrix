@@ -11,6 +11,15 @@ inputs:
     required: false
     type: number
 outputs:
+  numberOfTestNodes:
+    description: Number of test nodes
+    value: ${{ steps.calculate_number_of_test_nodes.outputs.result }}
+  testRunnersPerNode:
+    description: Test runners per node
+    value: ${{ steps.calculate_test_runners_per_node.outputs.result }}
+  total_runners:
+    description: The total number of runners
+    value: ${{ steps.calculate_total_runners.outputs.result }}
   matrix:
     description: The matrix
     value: ${{ steps.calculate_matrix.outputs.result }}
@@ -22,15 +31,24 @@ runs:
   using: "composite"
   steps:
     - uses: actions/github-script@v7
-      id: calculate_total_runners
-      name: Calculate Total Runners
+      id: calculate_number_of_test_nodes
+      name: Calculate Number Of Test Nodes
       env:
-        REPO_VISIBILITY: ${{ github.event.repository.visibility }}
         NUMBER_OF_TEST_NODES: ${{ inputs.numberOfTestNodes }}
-        TEST_RUNNERS_PER_NODE: ${{ inputs.testRunnersPerNode }}
       with:
         script: |
           var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES) || 4
+          console.log("numberOfTestNodes =====")
+          console.log(numberOfTestNodes)
+          return numberOfTestNodes
+    - uses: actions/github-script@v7
+      id: calculate_test_runners_per_node
+      name: Calculate Test Runners Per Node
+      env:
+        REPO_VISIBILITY: ${{ github.event.repository.visibility }}
+        TEST_RUNNERS_PER_NODE: ${{ inputs.testRunnersPerNode }}
+      with:
+        script: |
           var testRunnersPerNode = Number(process.env.TEST_RUNNERS_PER_NODE)
           if(!testRunnersPerNode){
             if(process.env.REPO_VISIBILITY == "public"){
@@ -39,6 +57,19 @@ runs:
               testRunnersPerNode = 2
             }
           }
+          console.log("testRunnersPerNode =====")
+          console.log(testRunnersPerNode)
+          return testRunnersPerNode
+    - uses: actions/github-script@v7
+      id: calculate_total_runners
+      name: Calculate Total Runners
+      env:
+        NUMBER_OF_TEST_NODES: ${{ steps.calculate_number_of_test_nodes.outputs.result }}
+        TEST_RUNNERS_PER_NODE: ${{ steps.calculate_total_runners.outputs.result }}
+      with:
+        script: |
+          var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES)
+          var testRunnersPerNode = Number(process.env.TEST_RUNNERS_PER_NODE)
           console.log("total runners =====")
           console.log(testRunnersPerNode * numberOfTestNodes)
           return testRunnersPerNode * numberOfTestNodes
@@ -47,20 +78,12 @@ runs:
       id: calculate_matrix
       name: Calculate Matrix
       env:
-        REPO_VISIBILITY: ${{ github.event.repository.visibility }}
-        NUMBER_OF_TEST_NODES: ${{ inputs.numberOfTestNodes }}
-        TEST_RUNNERS_PER_NODE: ${{ inputs.testRunnersPerNode }}
+        NUMBER_OF_TEST_NODES: ${{ steps.calculate_number_of_test_nodes.outputs.result }}
+        TEST_RUNNERS_PER_NODE: ${{ steps.calculate_total_runners.outputs.result }}
       with:
         script: |
-          var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES) || 4
+          var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES)
           var testRunnersPerNode = Number(process.env.TEST_RUNNERS_PER_NODE)
-          if(!testRunnersPerNode){
-            if(process.env.REPO_VISIBILITY == "public"){
-              testRunnersPerNode = 4
-            }else{
-              testRunnersPerNode = 2
-            }
-          }
           try {
             var matrix = []
             for(var i = 1; i <= numberOfTestNodes; i++){
