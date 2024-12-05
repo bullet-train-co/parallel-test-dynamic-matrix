@@ -62,7 +62,7 @@ runs:
       name: Calculate Total Runners
       env:
         NUMBER_OF_TEST_NODES: ${{ steps.calculate-number-of-test-nodes.outputs.result }}
-        TEST_RUNNERS_PER_NODE: ${{ steps.calculate-total-runners.outputs.result }}
+        TEST_RUNNERS_PER_NODE: ${{ steps.calculate-test-runners-per-node.outputs.result }}
       with:
         script: |
           var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES)
@@ -76,7 +76,7 @@ runs:
       name: Calculate Matrix
       env:
         NUMBER_OF_TEST_NODES: ${{ steps.calculate-number-of-test-nodes.outputs.result }}
-        TEST_RUNNERS_PER_NODE: ${{ steps.calculate-total-runners.outputs.result }}
+        TEST_RUNNERS_PER_NODE: ${{ steps.calculate-test-runners-per-node.outputs.result }}
       with:
         script: |
           var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES)
