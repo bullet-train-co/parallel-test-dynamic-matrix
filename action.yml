@@ -16,7 +16,7 @@ outputs:
     value: ${{ steps.calculate_matrix.outputs.result }}
   total_runners:
     description: The total number of runners
-    value: ${{ jobs.calculate_total_runners.outputs.result }}
+    value: ${{ steps.calculate_total_runners.outputs.result }}
 
 runs:
   using: "composite"
