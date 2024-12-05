@@ -13,25 +13,22 @@ inputs:
 outputs:
   numberOfTestNodes:
     description: Number of test nodes
-    value: ${{ steps.calculate_number_of_test_nodes.outputs.result }}
+    value: ${{ steps.calculate-number-of-test-nodes.outputs.result }}
   testRunnersPerNode:
     description: Test runners per node
-    value: ${{ steps.calculate_test_runners_per_node.outputs.result }}
-  total_runners:
+    value: ${{ steps.calculate-test-runners-per-node.outputs.result }}
+  totalRunners:
     description: The total number of runners
-    value: ${{ steps.calculate_total_runners.outputs.result }}
+    value: ${{ steps.calculate-total-runners.outputs.result }}
   matrix:
     description: The matrix
-    value: ${{ steps.calculate_matrix.outputs.result }}
-  total_runners:
-    description: The total number of runners
-    value: ${{ steps.calculate_total_runners.outputs.result }}
+    value: ${{ steps.calculate-matrix.outputs.result }}
 
 runs:
   using: "composite"
   steps:
     - uses: actions/github-script@v7
-      id: calculate_number_of_test_nodes
+      id: calculate-number-of-test-nodes
       name: Calculate Number Of Test Nodes
       env:
         NUMBER_OF_TEST_NODES: ${{ inputs.numberOfTestNodes }}
@@ -42,7 +39,7 @@ runs:
           console.log(numberOfTestNodes)
           return numberOfTestNodes
     - uses: actions/github-script@v7
-      id: calculate_test_runners_per_node
+      id: calculate-test-runners-per-node
       name: Calculate Test Runners Per Node
       env:
         REPO_VISIBILITY: ${{ github.event.repository.visibility }}
@@ -61,11 +58,11 @@ runs:
           console.log(testRunnersPerNode)
           return testRunnersPerNode
     - uses: actions/github-script@v7
-      id: calculate_total_runners
+      id: calculate-total-runners
       name: Calculate Total Runners
       env:
-        NUMBER_OF_TEST_NODES: ${{ steps.calculate_number_of_test_nodes.outputs.result }}
-        TEST_RUNNERS_PER_NODE: ${{ steps.calculate_total_runners.outputs.result }}
+        NUMBER_OF_TEST_NODES: ${{ steps.calculate-number-of-test-nodes.outputs.result }}
+        TEST_RUNNERS_PER_NODE: ${{ steps.calculate-total-runners.outputs.result }}
       with:
         script: |
           var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES)
@@ -75,11 +72,11 @@ runs:
           return testRunnersPerNode * numberOfTestNodes
 
     - uses: actions/github-script@v7
-      id: calculate_matrix
+      id: calculate-matrix
       name: Calculate Matrix
       env:
-        NUMBER_OF_TEST_NODES: ${{ steps.calculate_number_of_test_nodes.outputs.result }}
-        TEST_RUNNERS_PER_NODE: ${{ steps.calculate_total_runners.outputs.result }}
+        NUMBER_OF_TEST_NODES: ${{ steps.calculate-number-of-test-nodes.outputs.result }}
+        TEST_RUNNERS_PER_NODE: ${{ steps.calculate-total-runners.outputs.result }}
       with:
         script: |
           var numberOfTestNodes = Number(process.env.NUMBER_OF_TEST_NODES)
